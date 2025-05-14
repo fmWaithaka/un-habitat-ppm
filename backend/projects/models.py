@@ -1,5 +1,4 @@
 from django.db import models
-from django.utils import timezone 
 
 class Country(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -37,28 +36,22 @@ class Donor(models.Model):
 class Project(models.Model):
     STATUS_CHOICES = [
         ('Pending Approval', 'Pending Approval'),
-        ('Active', 'Active'),
-        ('Completed', 'Completed'),
-        ('Cancelled', 'Cancelled'),
+        ('Approved', 'Approved')
     ]
 
     title = models.CharField(max_length=255)
-    description = models.TextField(blank=True, null=True)
 
     project_id_excel = models.CharField(max_length=100, unique=True, null=True, blank=True)
     paas_code = models.CharField(max_length=100, null=True, blank=True)
-
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Approved')
+    fund = models.CharField(max_length=100, null=True, blank=True)
     country = models.ForeignKey(Country, on_delete=models.PROTECT, related_name='projects', null=True, blank=True) # Added null=True/blank=True as Country(ies) has missing data
-    lead_org_unit = models.ForeignKey(LeadOrgUnit, on_delete=models.PROTECT, related_name='projects', null=True, blank=True) # Added null=True/blank=True as Lead Org Unit has missing data    themes = models.ManyToManyField(Theme, related_name='projects', blank=True) 
+    lead_org_unit = models.ForeignKey(LeadOrgUnit, on_delete=models.PROTECT, related_name='projects', null=True, blank=True) # Added null=True/blank=True as Lead Org Unit has missing data 
     themes = models.ManyToManyField(Theme, related_name='projects', blank=True) # ManyToMany
-
-    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Pending Approval', null=True, blank=True)
-
     approval_date = models.DateField(null=True, blank=True)
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
-    budget_amount = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True) # For monetary values
-    
+
     # Monetary/Numerical Fields -  DecimalField, map from float64
     budget_amount = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True)
     pag_value = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True)
@@ -68,16 +61,11 @@ class Project(models.Model):
     total_psc = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True)
 
     # Donor(s) - ManyToMany or TextField
-    donors_text = models.TextField(null=True, blank=True) # Simple text storage
-    # donors = models.ManyToManyField(Donor, related_name='projects', blank=True) # Structured relationship
+    donors = models.ManyToManyField(Donor, related_name='projects', blank=True) # Structured relationship
 
     # Audit Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-    created_at = models.DateTimeField(auto_now_add=True) # Automatically set when object is first created
-    updated_at = models.DateTimeField(auto_now=True)   # Automatically set every time object is saved
-
 
     class Meta:
         ordering = ['-created_at'] # Default ordering for projects
