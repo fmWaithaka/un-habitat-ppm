@@ -25,7 +25,7 @@ export default {
     getProjects(params = {}) { // params for pagination, filtering, search
         return apiClient.get('/projects/', { params });
     },
-    getProject(id) {
+    getProjectById(id) {
         return apiClient.get(`/projects/${id}/`);
     },
     createProject(data) {
