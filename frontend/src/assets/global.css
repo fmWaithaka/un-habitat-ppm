@@ -1,0 +1,162 @@
+/* src/assets/global.css */
+/* Define a color palette using CSS variables for easy theming */
+/* These variables help maintain a consistent look and feel, and make it easier
+   to implement theme switching (e.g., light/dark mode) later if needed. */
+:root {
+  /* Primary & Accent Colors */
+  --color-primary: #007bff; /* A standard blue, good for UN theme */
+  --color-primary-light: #e6f2ff; /* Lighter shade for backgrounds/hovers */
+  --color-primary-dark: #0056b3; /* Darker shade */
+  --color-accent: #ffc107; /* Example accent color (yellow) */
+
+  /* Text Colors */
+  --color-text-primary: #333333;    /* For main body text */
+  --color-text-secondary: #555555;  /* For less important text, placeholders */
+  --color-text-heading: #1a2b48;    /* Dark blue for headings */
+  --color-text-light: #ffffff;      /* For text on dark backgrounds */
+  --color-text-nav: #ffffff; /* Text color for the navbar */
+  --color-text-nav-link: #e0e0e0; /* Default color for nav links */
+  --color-text-nav-hover: #ffffff; /* Color for nav links on hover */
+
+  /* Background Colors */
+  --color-background-body: #f4f7f9; /* Light grey for the overall page background */
+  --color-background-content: #ffffff; /* White for content cards/sections */
+  --color-background-mute: #e9ecef;    /* For subtle backgrounds, dividers */
+  --color-background-nav: #1a2b48; /* Dark blue for navbar */
+  --color-background-nav-hover: #2c3f63; /* Slightly lighter for nav hover */
+
+  /* Border Colors */
+  --color-border: #d1d9e0;         /* Standard border color */
+  --color-border-light: #e1e8f0;    /* Lighter border for subtle separation */
+
+  /* Status Colors (Backgrounds and Text) */
+  /* These are used by the ProjectCard component for status badges */
+  --color-status-completed-bg: #d4edda;
+  --color-status-completed-text: #155724;
+  --color-status-inprogress-bg: #cce5ff;
+  --color-status-inprogress-text: #004085;
+  --color-status-pending-bg: #fff3cd;
+  --color-status-pending-text: #856404;
+  --color-status-cancelled-bg: #f8d7da;
+  --color-status-cancelled-text: #721c24;
+  --color-status-onhold-bg: #e2e3e5;
+  --color-status-onhold-text: #383d41;
+  --color-status-unknown-bg: var(--color-background-mute); /* Fallback */
+  --color-status-unknown-text: var(--color-text-secondary); /* Fallback */
+
+  /* Error State Colors */
+  --color-background-error: #f8d7da;
+  --color-text-error: #721c24;
+  --color-border-error: #f5c6cb;
+
+  /* Spacing & Sizing */
+  --spacing-unit: 8px; /* Define a base spacing unit */
+  --border-radius-sm: 4px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+}
+
+/* --- Dark Mode Specific Variables (Optional, but good for your goal) --- */
+/* You can define dark mode variables here that override the defaults */
+/* You'd typically apply these using a media query or a class on the body/html */
+/* Example using a media query for system preference: */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background-body: #121212; /* Very dark background */
+    --color-background-content: #1e1e1e; /* Slightly lighter dark for content */
+    --color-background-mute: #2a2a2a; /* Muted dark background */
+    --color-background-nav: #1f1f1f; /* Dark background for navbar */
+    --color-background-nav-hover: #333333; /* Hover dark background */
+
+    --color-text-primary: #e0e0e0; /* Light text for main content */
+    --color-text-secondary: #b0b0b0; /* Slightly darker light text */
+    --color-text-heading: #ffffff; /* White headings */
+    --color-text-light: #121212; /* Dark text on light elements (if any) */
+    --color-text-nav: #e0e0e0; /* Light text for navbar */
+    --color-text-nav-link: #b0b0b0; /* Default color for nav links */
+    --color-text-nav-hover: #ffffff; /* White on hover */
+
+    --color-border: #3a3a3a; /* Darker border */
+    --color-border-light: #2a2a2a; /* Lighter dark border */
+
+    /* Adjust status colors for dark mode if needed for better contrast */
+    /* For simplicity, we'll keep the same background/text pairs for now,
+       but you might need to fine-tune these specific colors. */
+    --color-status-completed-bg: #1f4d28; /* Darker green */
+    --color-status-completed-text: #a3e9b4; /* Lighter green text */
+    --color-status-inprogress-bg: #1a3a6d; /* Darker blue */
+    --color-status-inprogress-text: #a2cffc; /* Lighter blue text */
+    --color-status-pending-bg: #6b5a1e; /* Darker yellow/brown */
+    --color-status-pending-text: #fceabe; /* Lighter yellow text */
+    --color-status-cancelled-bg: #7d3a3a; /* Darker red */
+    --color-status-cancelled-text: #fcaaaa; /* Lighter red text */
+    --color-status-onhold-bg: #4a4a4a; /* Darker grey */
+    --color-status-onhold-text: #cccccc; /* Lighter grey text */
+    --color-status-unknown-bg: var(--color-background-mute);
+    --color-status-unknown-text: var(--color-text-secondary);
+
+    --color-background-error: #7d3a3a; /* Darker error background */
+    --color-text-error: #fcaaaa; /* Lighter error text */
+    --color-border-error: #6a2a2a; /* Darker error border */
+
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.18); /* Darker shadows */
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.4), 0 2px 4px -1px rgba(0,0,0,0.24);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.5), 0 4px 6px -2px rgba(0,0,0,0.3);
+  }
+}
+
+
+/* Apply a more modern font stack and base styling to the body */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  margin: 0;
+  padding: 0;
+  /* Use the background color variable from :root (which might be overridden by media query) */
+  background-color: var(--color-background-body);
+  /* Use the text color variable from :root (which might be overridden by media query) */
+  color: var(--color-text-primary);
+  line-height: 1.6; /* Improve readability */
+  -webkit-font-smoothing: antialiased; /* Enhance font rendering */
+  -moz-osx-font-smoothing: grayscale; /* Enhance font rendering */
+  transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transition for theme changes */
+}
+
+/* Global link styling (optional, as router-links are often styled specifically) */
+a {
+  color: var(--color-primary); /* Use primary color for links */
+  text-decoration: none; /* Remove default underline */
+  transition: color 0.2s ease-in-out; /* Smooth color transition on hover */
+}
+
+a:hover {
+  color: var(--color-primary-dark); /* Darker primary on hover */
+  text-decoration: underline; /* Add underline on hover */
+}
+
+/* Basic reset and styling for headings */
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 0;
+  margin-bottom: 0.75em; /* Consistent bottom margin */
+  font-weight: 600; /* Default bold for headings */
+  color: var(--color-text-heading); /* Use heading text color */
+  line-height: 1.2; /* Improve heading line height */
+}
+
+/* Utility classes (optional, but can be helpful) */
+.text-center {
+  text-align: center;
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px; /* Max width for content */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 15px;
+  padding-right: 15px;
+}
