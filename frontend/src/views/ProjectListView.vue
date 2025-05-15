@@ -65,31 +65,41 @@ onMounted(fetchProjectsData);
 
 <template>
   <div class="project-list-view">
+    <header class="view-header">
+      <h1>Our Projects</h1>
+      <p>Browse through our portfolio of impactful projects across the globe.</p>
+      <router-link :to="{ name: 'ProjectCreate' }" class="create-project-button">
+        + Add New Project
+      </router-link>
+    </header>
+
     <div v-if="!loading && !error && projects.length > 0" class="project-grid">
       <ProjectCard
         v-for="project in projects"
         :key="project.id"
         :project="project"
-        @delete="handleDeleteProject" /> </div>
+        @delete="handleDeleteProject" />
+    </div>
      </div>
 </template>
+
 <style scoped>
 /* Scoped styles specific to ProjectListView.vue */
 
 .project-list-view {
   padding: 20px;
-  width: 100%; /* Explicitly set width to 100% of its parent (.main-content) */
-  margin: 0; /* Explicitly remove any margin */
-  color: var(--color-text-primary); /* Ensure text color is set */
-  box-sizing: border-box; /* Include padding in the element's total width */
-  /* Optional: Add a temporary border to visualize this element's boundaries */
-  /* border: 2px dashed red; */
+  /* width: 100%; */ /* Keep or adjust width as needed */
+  /* margin: 0; */ /* Keep or adjust margin as needed */
+  color: var(--color-text-primary);
+  /* box-sizing: border-box; */ /* Keep or adjust as needed */
 }
 
 .view-header {
-  text-align: center; /* Center the header text */
-  margin-bottom: 40px; /* Space below the header */
-  color: var(--color-text-primary); /* Use primary text color from global variables */
+  text-align: center;
+  margin-bottom: 40px;
+  color: var(--color-text-primary);
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--color-border-light); /* Add a separator */
 }
 
 .view-header h1 {
@@ -104,6 +114,25 @@ onMounted(fetchProjectsData);
   color: var(--color-text-secondary); /* Use secondary text color */
   max-width: 1900px; /* Limit paragraph width for readability */
   margin: 0 auto; /* Center the paragraph */
+}
+
+/* Style for the "Add New Project" button */
+.create-project-button {
+  display: inline-block; /* Make it a block element for padding/margin */
+  background-color: var(--color-primary);
+  color: var(--color-text-light);
+  border: 1px solid var(--color-primary);
+  padding: 10px 20px;
+  border-radius: var(--border-radius-md);
+  font-weight: 500;
+  text-decoration: none; /* Remove underline from router-link */
+  margin-top: 20px; /* Space above the button */
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.create-project-button:hover {
+  background-color: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
 }
 
 /* Styles for the project grid container */

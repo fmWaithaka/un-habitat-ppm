@@ -22,17 +22,17 @@ export const getProjectById = (id) => {
 // TODO: Add other project-related API functions as needed based on your backend API
 // These functions will use apiClient and the appropriate HTTP method (POST, PUT, DELETE)
 
-// Example: Function to create a new project
-// export const createProject = (data) => {
-//   // Makes a POST request to the 'projects/' endpoint with the project data
-//   return apiClient.post('projects/', data);
-// };
+// Function to create a new project
+export const createProject = (data) => {
+  // Makes a POST request to the 'projects/' endpoint with the project data
+  return apiClient.post('projects/', data);
+};
 
 // Example: Function to update an existing project
-// export const updateProject = (id, data) => {
-//   // Makes a PUT or PATCH request to the 'projects/{id}/' endpoint with updated data
-//   return apiClient.put(`projects/${id}/`, data); // Use put for full update, patch for partial
-// };
+export const updateProject = (id, data) => {
+  // Makes a PUT or PATCH request to the 'projects/{id}/' endpoint with updated data
+  return apiClient.put(`projects/${id}/`, data); // Use put for full update, patch for partial
+};
 
 // Function to delete a project by its ID
 export const deleteProject = (id) => {

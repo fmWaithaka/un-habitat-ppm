@@ -29,17 +29,18 @@ const routes = [
     props: true // This tells Vue Router to pass the route parameters (like 'id') as props to the component
   },
   // TODO: Add routes for creating and editing projects later
-  // {
-  //   path: '/projects/create',
-  //   name: 'ProjectCreate',
-  //   component: () => import('../views/ProjectCreateView.vue'),
-  // },
-  // {
-  //   path: '/projects/:id/edit',
-  //   name: 'ProjectEdit',
-  //   component: () => import('../views/ProjectEditView.vue'),
-  //   props: true
-  // },
+  {
+    path: '/projects/create',
+    name: 'ProjectCreate',
+    component: () => import('../views/ProjectCreateView.vue'),
+  },
+
+  {
+    path: '/projects/:id/edit',
+    name: 'ProjectEdit',
+    component: () => import('../views/ProjectEditView.vue'),
+    props: true
+  },
 ];
 
 // Create the router instance
