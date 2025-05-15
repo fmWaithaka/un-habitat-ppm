@@ -57,7 +57,7 @@ class Project(models.Model):
     pag_value = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True)
     total_expenditure = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True)
     total_contribution = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True)
-    total_contribution_expenditure_diff = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True) # If you choose to store this
+    total_contribution_expenditure_diff = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True) 
     total_psc = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True)
 
     # Donor(s) - ManyToMany or TextField

@@ -21,7 +21,6 @@
         <h2>Basic Information</h2>
         <p><strong>Project ID (Excel):</strong> {{ project.project_id_excel || 'N/A' }}</p>
         <p><strong>PAAS Code:</strong> {{ project.paas_code || 'N/A' }}</p>
-        <p><strong>Description:</strong> {{ project.description || 'No description available.' }}</p>
       </div>
 
       <div class="detail-section">

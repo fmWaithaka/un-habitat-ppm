@@ -1,55 +1,49 @@
+// src/router/index.js
+
 import { createRouter, createWebHistory } from 'vue-router';
 
 // Import the view components for the routes
 import ProjectListView from '../views/ProjectListView.vue';
-import DashboardView from '../views/DashboardView.vue'; // Placeholder view for now
-
+import DashboardView from '../views/DashboardView.vue'; // <-- Ensure this is imported
 import ProjectDetailView from '../views/ProjectDetailView.vue';
+import ProjectCreateView from '../views/ProjectCreateView.vue';
+import ProjectEditView from '../views/ProjectEditView.vue';
 
 // Define the route configurations
 const routes = [
   {
-    path: '/', // The URL path for this route
-    name: 'Projects', // A unique name for the route
-    component: ProjectListView, // The component to render when this path is matched
-    // Optional: Add meta fields for transitions, auth, etc.
-    // meta: { transition: 'slide-right' }
+    path: '/',
+    name: 'Projects', // Name for the Projects List route
+    component: ProjectListView,
   },
   {
-    path: '/dashboard', // The URL path for the dashboard
-    name: 'Dashboard', // A unique name for the dashboard route
-    component: DashboardView, // The component to render for the dashboard
-    // Example of lazy loading for better performance on initial load:
-    // component: () => import('../views/DashboardView.vue')
+    path: '/dashboard',
+    name: 'Dashboard', // Name for the Dashboard route
+    component: DashboardView, // <-- Ensure this is mapped
   },
   {
     path: '/projects/:id',
-    name: 'ProjectDetails', // Unique name for the Project Details route
-    component: ProjectDetailView, // Component to render
-    props: true // This tells Vue Router to pass the route parameters (like 'id') as props to the component
+    name: 'ProjectDetails', // Name for the Project Details route
+    component: ProjectDetailView,
+    props: true
   },
-  // TODO: Add routes for creating and editing projects later
   {
-    path: '/projects/create',
-    name: 'ProjectCreate',
-    component: () => import('../views/ProjectCreateView.vue'),
+    path: '/projects/create', // The URL path for creating a project
+    name: 'ProjectCreate', // Unique name for the Create route
+    component: ProjectCreateView,
   },
-
   {
     path: '/projects/:id/edit',
-    name: 'ProjectEdit',
-    component: () => import('../views/ProjectEditView.vue'),
+    name: 'ProjectEdit', // Unique name for the Edit route
+    component: ProjectEditView,
     props: true
   },
 ];
 
 // Create the router instance
 const router = createRouter({
-  // Use createWebHistory for cleaner URLs (e.g., /projects instead of /#/projects)
   history: createWebHistory(import.meta.env.BASE_URL),
-  // Pass the defined routes array to the router
   routes,
 });
 
-// Export the router instance to be used in main.js
 export default router;
