@@ -1,5 +1,5 @@
 // src/services/projectService.js
-// Purpose: Provides specific functions for interacting with the project-related API endpoints.
+// Provides specific functions for interacting with project-related API endpoints.
 
 import apiClient from './api';
 
@@ -30,8 +30,7 @@ export const updateProject = (id, data) => {
   return apiClient.put(`projects/${id}/`, data);
 };
 
-
-// --- New Functions for Dashboard Aggregated Data ---
+// --- Functions for Dashboard Aggregated Data ---
 
 // Function to get project count aggregated by country
 export const getProjectCountByCountry = () => {
@@ -50,8 +49,15 @@ export const getProjectCountByTheme = () => {
 
 // Function to get data for world map visualization (project count by country)
 export const getWorldMapProjectData = () => {
-   // Reusing the country count endpoint for map data as planned
-   return apiClient.get('projects/summary/world_map_data/');
+    // Reusing the country count endpoint for map data as planned
+    return apiClient.get('projects/summary/world_map_data/');
+};
+
+// --- New Function for AI Insights ---
+// Function to fetch AI-generated insights from the backend
+export const getAIInsights = () => {
+    // Makes a GET request to the '/api/projects/insights/' endpoint
+    return apiClient.get('projects/insights/');
 };
 
 

@@ -29,22 +29,18 @@ import Navbar from './components/Navbar.vue';
 /* Scoped styles specific to App.vue */
 
 /* Main container for the entire application layout */
-#app-container {
+.app-container {
   display: flex;
   flex-direction: column; /* Stack children vertically */
   min-height: 100vh; /* Ensure the container takes at least the full viewport height */
-  /* Use CSS variable for background color defined in global.css */
-  background-color: var(--color-background-body);
-  color: var(--color-text-primary); /* Default text color for the app container */
+  /* ... other styles */
 }
 
-/* Styles for the main content area */
 .main-content {
   flex-grow: 1; /* Allow the main content area to take up all available space */
   padding: 20px; /* Add padding around the content area */
-  /* overflow-y: auto; /* Uncomment if you need independent scrolling for the main content */
+  /* ... other styles */
 }
-
 /* Styles for the application footer */
 .app-footer {
   /* Use CSS variables for background and text colors defined in global.css */
