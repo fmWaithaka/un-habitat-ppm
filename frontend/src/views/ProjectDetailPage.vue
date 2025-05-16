@@ -13,36 +13,64 @@
 
     <div v-if="project && !loading && !error" class="project-details-content">
       <h2>{{ project.title }}</h2>
-      <p><strong>ID:</strong> {{ project.id }}</p>
-      <p><strong>Excel ID:</strong> {{ project.project_id_excel || 'N/A' }}</p>
-      <p><strong>Status:</strong> <span :class="getStatusClass(project.status)" class="status-badge">{{ project.status || 'N/A' }}</span></p>
-      <p><strong>Country:</strong> {{ project.country ? project.country.name : 'N/A' }}</p>
-      <p>
-        <strong>Donor(s):</strong>
-        <span v-if="project.donors && project.donors.length">
-          {{ project.donors.map(donor => donor.name).join(', ') }}
-        </span>
-        <span v-else>N/A</span>
-      </p>
       <section class="details-section">
-        <h3>Timelines</h3>
+        <h3>Basic Information</h3>
+        <p><strong>Project ID :</strong> {{ project.project_id_excel || 'N/A' }}</p>
+        <p><strong>PAAS Code:</strong> {{ project.paas_code || 'N/A' }}</p>
+        <p><strong>Approval Status:</strong> <span :class="getStatusClass(project.status)" class="status-badge">{{ project.status || 'N/A' }}</span></p>
+        <p><strong>Fund:</strong> {{ project.fund || 'N/A' }}</p>
+        <p><strong>Country(ies):</strong> {{ project.country_detail ? project.country_detail.name : 'N/A' }}</p>
+        <p><strong>Lead Org Unit:</strong> {{ project.lead_org_unit_detail ? project.lead_org_unit_detail.name : 'N/A' }}</p>
+      </section>
+
+      <section class="details-section">
+        <h3>Financial Details</h3>
+        <p><strong>PAG Value:</strong> {{ project.pag_value !== null ? project.pag_value : 'N/A' }}</p>
+        <p><strong>Budget Amount:</strong> {{ project.budget_amount !== null ? project.budget_amount : 'N/A' }}</p>
+        <p><strong>Total Expenditure:</strong> {{ project.total_expenditure !== null ? project.total_expenditure : 'N/A' }}</p>
+        <p><strong>Total Contribution:</strong> {{ project.total_contribution !== null ? project.total_contribution : 'N/A' }}</p>
+        <p><strong>Total Contribution - Total Expenditure:</strong> {{ project.total_contribution_expenditure_diff !== null ? project.total_contribution_expenditure_diff : 'N/A' }}</p>
+        <p><strong>Total PSC:</strong> {{ project.total_psc !== null ? project.total_psc : 'N/A' }}</p>
+      </section>
+
+      <section class="details-section">
+        <h3>Dates</h3>
         <p><strong>Start Date:</strong> {{ project.start_date || 'N/A' }}</p>
         <p><strong>End Date:</strong> {{ project.end_date || 'N/A' }}</p>
+        <p><strong>Approval Date:</strong> {{ project.approval_date || 'N/A' }}</p>
+      </section>
+
+      <section class="details-section">
+        <h3>Relationships</h3>
+        <p>
+          <strong>Donor(s):</strong>
+          <span v-if="project.donors_detail && project.donors_detail.length > 0">
+            {{ project.donors_detail.map(donor => donor.name).join(', ') }}
+          </span>
+          <span v-else>N/A</span>
+        </p>
+        <p>
+          <strong>Theme(s):</strong>
+          <span v-if="project.themes_detail && project.themes_detail.length > 0">
+            {{ project.themes_detail.map(theme => theme.name).join(', ') }}
+          </span>
+          <span v-else>N/A</span>
+        </p>
       </section>
 
       </div>
-     <div v-if="!project && !loading && !error" class="no-project-found">
-      <p>Project not found.</p>
-    </div>
+      <div v-if="!project && !loading && !error" class="no-project-found">
+       <p>Project not found.</p>
+     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, computed, watch} from 'vue';
 import apiService from '@/services/api';
-import { useRouter } from 'vue-router'; 
+import { useRouter } from 'vue-router';
 
-const router = useRouter(); 
+const router = useRouter();
 
 const props = defineProps({
   id: { // This prop is automatically passed due to `props: true` in router config
@@ -59,9 +87,10 @@ const fetchProjectDetails = async () => {
   loading.value = true;
   error.value = null;
   try {
-    // Use the id from props (passed by the router)
-    const response = await apiService.getProjectById(props.id); // You'll need to implement getProjectById in apiService
+    // Use the id from props to fetch a single project detail
+    const response = await apiService.getProjectById(props.id); // Ensure apiService has getProjectById
     project.value = response.data;
+    console.log("Fetched project details:", project.value); // Log fetched data for inspection
   } catch (err) {
     console.error(`Failed to fetch project ${props.id}:`, err);
     error.value = err;
@@ -89,8 +118,8 @@ const getStatusClass = (status) => {
   if (!status) return 'status-default';
   const lowerStatus = status.toLowerCase();
   if (lowerStatus === 'pending approval') return 'status-pending';
-  if (lowerStatus === 'active' || lowerStatus === 'completed') return 'status-approved';
-  if (lowerStatus === 'cancelled') return 'status-cancelled';
+  if (lowerStatus === 'approved') return 'status-approved';
+  if (lowerStatus === 'cancelled') return 'status-cancelled'; // Assuming cancelled is a possible status
   return 'status-default';
 };
 </script>

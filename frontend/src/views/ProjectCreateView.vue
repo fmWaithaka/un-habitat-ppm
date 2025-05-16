@@ -1,402 +1,495 @@
 <template>
-  <div class="project-create-view">
-    <header class="view-header">
-      <h1>Create New Project</h1>
-      <p>Fill in the details below to add a new project to the portfolio.</p>
-    </header>
-
-    <div class="create-form-container">
-      <form @submit.prevent="handleSubmit">
-
-        <div class="form-group">
-          <label for="title">Project Title:</label>
-          <input type="text" id="title" v-model="formData.title" required>
-        </div>
-
-        <div class="form-group">
-          <label for="project_id_excel">Project ID (Excel):</label>
-          <input type="text" id="project_id_excel" v-model="formData.project_id_excel">
-        </div>
-
-        <div class="form-group">
-          <label for="paas_code">PAAS Code:</label>
-          <input type="text" id="paas_code" v-model="formData.paas_code">
-        </div>
-
-        <div class="form-group">
-          <label for="status">Status:</label>
-          <select id="status" v-model="formData.status" required>
-            <option value="" disabled>Select Status</option> <option v-for="statusChoice in statusChoices" :value="statusChoice.key" :key="statusChoice.key">
-              {{ statusChoice.label }}
-            </option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="fund">Fund:</label>
-          <input type="text" id="fund" v-model="formData.fund">
-        </div>
-
-        <div class="form-group">
-           <label for="country">Country:</label>
-           <select id="country" v-model="formData.country">
-              <option :value="null">Select Country</option> <option v-for="country in countryOptions" :value="country" :key="country.id">
-                 {{ country.name }}
-              </option>
-           </select>
-        </div>
-
-         <div class="form-group">
-           <label for="lead_org_unit">Lead Org Unit:</label>
-           <input type="text" id="lead_org_unit" v-model="formData.lead_org_unit">
-        </div>
-
-        <div class="form-group">
-           <label for="themes">Themes (comma-separated):</label>
-           <input type="text" id="themes" v-model="formData.themes">
-        </div>
-
-         <div class="form-group">
-           <label for="donors">Donors (comma-separated):</label>
-            <input type="text" id="donors" v-model="formData.donors">
-        </div>
-
-        <div class="form-group">
-           <label for="approval_date">Approval Date:</label>
-           <input type="date" id="approval_date" v-model="formData.approval_date">
-        </div>
-
-        <div class="form-group">
-           <label for="start_date">Start Date:</label>
-           <input type="date" id="start_date" v-model="formData.start_date">
-        </div>
-
-        <div class="form-group">
-           <label for="end_date">End Date:</label>
-           <input type="date" id="end_date" v-model="formData.end_date">
-        </div>
-
-        <div class="form-group">
-           <label for="budget_amount">Budget Amount:</label>
-           <input type="number" id="budget_amount" v-model="formData.budget_amount" step="0.01">
-        </div>
-         <div class="form-group">
-           <label for="pag_value">PAG Value:</label>
-           <input type="number" id="pag_value" v-model="formData.pag_value" step="0.01">
-        </div>
-         <div class="form-group">
-           <label for="total_expenditure">Total Expenditure:</label>
-           <input type="number" id="total_expenditure" v-model="formData.total_expenditure" step="0.01">
-        </div>
-         <div class="form-group">
-           <label for="total_contribution">Total Contribution:</label>
-           <input type="number" id="total_contribution" v-model="formData.total_contribution" step="0.01">
-        </div>
-        <div class="form-group">
-           <label for="total_contribution_expenditure_diff">Total Contribution - Total Expenditure:</label>
-           <input type="number" id="total_contribution_expenditure_diff" v-model="formData.total_contribution_expenditure_diff" step="0.01">
-        </div>
-         <div class="form-group">
-           <label for="total_psc">Total PSC:</label>
-           <input type="number" id="total_psc" v-model="formData.total_psc" step="0.01">
-        </div>
-
-        <div class="form-actions">
-          <button type="submit" :disabled="isSubmitting">
-            {{ isSubmitting ? 'Creating...' : 'Create Project' }}
-          </button>
-          <button type="button" @click="handleCancel">Cancel</button>
-        </div>
-
-        <div v-if="submissionError" class="error-message">
-          <p><strong>Error submitting form:</strong></p>
-          <p>{{ submissionError }}</p>
-           </div>
-      </form>
+  <div class="create-project-page">
+    <div class="page-header">
+      <h1 class="page-title">Create New Project</h1>
+      <router-link to="/" class="btn btn-secondary">Cancel</router-link>
     </div>
+
+    <div v-if="loadingInitialData" class="loading-state">Loading form data...</div>
+    <div v-if="initialDataError" class="error-state">
+      <p>Error loading data for form: {{ initialDataError.message || 'Unknown error' }}</p>
+      <button @click="fetchInitialData" class="btn">Try Again</button>
+    </div>
+
+    <form @submit.prevent="handleSubmit" v-if="!loadingInitialData && !initialDataError">
+      <div class="form-section">
+        <h3>Basic Information</h3>
+        <div class="form-group">
+          <label for="title">Project Title <span class="required">*</span></label>
+          <input type="text" id="title" v-model="formData.title" required />
+          <span v-if="formErrors.title" class="error-message">{{ formErrors.title[0] }}</span>
+        </div>
+
+        <div class="form-group">
+          <label for="project_id_excel">Project ID <span class="required">*</span></label>
+          <input type="text" id="project_id_excel" v-model="formData.project_id_excel" />
+          <span v-if="formErrors.project_id_excel" class="error-message">{{ formErrors.project_id_excel[0] }}</span>
+        </div>
+
+        <div class="form-group">
+          <label for="paas_code">PAAS Code</label>
+          <input type="text" id="paas_code" v-model="formData.paas_code" />
+          <span v-if="formErrors.paas_code" class="error-message">{{ formErrors.paas_code[0] }}</span>
+        </div>
+
+        <div class="form-group">
+          <label for="status">Status <span class="required">*</span></label>
+          <select id="status" v-model="formData.status" required>
+            <option value="" disabled>Select Status</option>
+            <option value="Pending Approval">Pending Approval</option>
+            <option value="Approved">Approved</option>
+          </select>
+          <span v-if="formErrors.status" class="error-message">{{ formErrors.status[0] }}</span>
+        </div>
+
+        <div class="form-group">
+          <label for="fund">Fund</label>
+          <input type="text" id="fund" v-model="formData.fund" />
+          <span v-if="formErrors.fund" class="error-message">{{ formErrors.fund[0] }}</span>
+        </div>
+
+        <div class="form-group">
+          <label for="country_name_input">Country <span class="required">*</span></label>
+          <select id="country_name_input" v-model="formData.country_name_input" required>
+            <option value="" disabled>Select Country</option>
+            <option v-for="country in countries" :key="country.id" :value="country.name">{{ country.name }}</option>
+          </select>
+          <span v-if="formErrors.country_name_input" class="error-message">{{ formErrors.country_name_input[0] }}</span>
+        </div>
+
+        <div class="form-group">
+          <label for="lead_org_unit_name_input">Lead Organization Unit</label>
+          <input type="text" id="lead_org_unit_name_input" v-model="formData.lead_org_unit_name_input" placeholder="Enter Lead Org Unit name"/>
+          <span v-if="formErrors.lead_org_unit_name_input" class="error-message">{{ formErrors.lead_org_unit_name_input[0] }}</span>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3>Financial Details</h3>
+        <div class="form-group">
+          <label for="budget_amount">Budget Amount</label>
+          <input type="number" id="budget_amount" v-model.number="formData.budget_amount" step="0.01" />
+          <span v-if="formErrors.budget_amount" class="error-message">{{ formErrors.budget_amount[0] }}</span>
+        </div>
+        <div class="form-group">
+          <label for="pag_value">PAG Value</label>
+          <input type="number" id="pag_value" v-model.number="formData.pag_value" step="0.01" />
+          <span v-if="formErrors.pag_value" class="error-message">{{ formErrors.pag_value[0] }}</span>
+        </div>
+        <div class="form-group">
+          <label for="total_expenditure">Total Expenditure</label>
+          <input type="number" id="total_expenditure" v-model.number="formData.total_expenditure" step="0.01" />
+          <span v-if="formErrors.total_expenditure" class="error-message">{{ formErrors.total_expenditure[0] }}</span>
+        </div>
+        <div class="form-group">
+          <label for="total_contribution">Total Contribution</label>
+          <input type="number" id="total_contribution" v-model.number="formData.total_contribution" step="0.01" />
+          <span v-if="formErrors.total_contribution" class="error-message">{{ formErrors.total_contribution[0] }}</span>
+        </div>
+        <div class="form-group">
+          <label for="total_psc">Total PSC</label>
+          <input type="number" id="total_psc" v-model.number="formData.total_psc" step="0.01" />
+          <span v-if="formErrors.total_psc" class="error-message">{{ formErrors.total_psc[0] }}</span>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3>Dates</h3>
+        <div class="form-group">
+          <label for="start_date">Start Date</label>
+          <input type="date" id="start_date" v-model="formData.start_date" />
+          <span v-if="formErrors.start_date" class="error-message">{{ formErrors.start_date[0] }}</span>
+        </div>
+        <div class="form-group">
+          <label for="end_date">End Date</label>
+          <input type="date" id="end_date" v-model="formData.end_date" />
+          <span v-if="formErrors.end_date" class="error-message">{{ formErrors.end_date[0] }}</span>
+        </div>
+         <div class="form-group">
+          <label for="approval_date">Approval Date</label>
+          <input type="date" id="approval_date" v-model="formData.approval_date" />
+          <span v-if="formErrors.approval_date" class="error-message">{{ formErrors.approval_date[0] }}</span>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3>Relationships</h3>
+        <div class="form-group">
+          <label for="donors_select">Donors (select one or more)</label>
+          <select id="donors_select" v-model="selectedDonors" multiple>
+            <option v-for="donor in availableDonors" :key="donor.id" :value="donor.name">{{ donor.name }}</option>
+          </select>
+          <small>Hold Ctrl/Cmd to select multiple.</small>
+          <span v-if="formErrors.donors_input" class="error-message">{{ formErrors.donors_input[0] }}</span>
+        </div>
+        <div class="form-group">
+          <label for="themes_select">Themes (select one or more)</label>
+          <select id="themes_select" v-model="selectedThemes" multiple>
+            <option v-for="theme in availableThemes" :key="theme.id" :value="theme.name">{{ theme.name }}</option>
+          </select>
+          <small>Hold Ctrl/Cmd to select multiple.</small>
+          <span v-if="formErrors.themes_input" class="error-message">{{ formErrors.themes_input[0] }}</span>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" :disabled="isSubmitting">
+          <span v-if="isSubmitting" class="spinner"></span>
+          {{ isSubmitting ? 'Creating...' : 'Create Project' }}
+        </button>
+        <router-link to="/" class="btn btn-secondary" :disabled="isSubmitting">Cancel</router-link>
+      </div>
+
+      <div v-if="submitError" class="error-state submit-error">
+        <p>Error creating project: {{ submitError.message || 'Unknown error' }}</p>
+        <p v-if="submitError.response && submitError.response.data">
+          Server says: {{ formatBackendErrors(submitError.response.data) }}
+        </p>
+      </div>
+      <div v-if="submitSuccess" class="success-state">
+        <p>Project created successfully!</p>
+        <button @click="resetFormAndPrepareNew" class="btn">Create Another Project</button>
+        <router-link :to="{ name: 'ProjectList' }" class="btn btn-secondary">View All Projects</router-link>
+      </div>
+    </form>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'; // Import onMounted
+import { ref, onMounted } from 'vue';
+import apiService from '@/services/api'; // Ensure this path is correct
 import { useRouter } from 'vue-router';
-import { createProject } from '../services/projectService'; // Import createProject function
-// TODO: Import service function to fetch Countries
-// import { getCountries } from '../services/yourOtherServiceFile'; // Example
 
 const router = useRouter();
 
-// Reactive variable to hold form data
-const formData = ref({
+const initialFormData = {
   title: '',
   project_id_excel: '',
   paas_code: '',
-  status: '', // Initialize status as empty string to match default option value
+  status: '',
   fund: '',
-  country: null, // Initialize ForeignKey field as null (will hold Country object)
-  lead_org_unit: '', // Changed to empty string for text input
-  themes: '', // Changed to empty string for text input (assuming comma-separated names)
-  donors: '', // Changed to empty string for text input (assuming comma-separated names)
-  approval_date: '', // Date inputs work best with empty string or null
-  start_date: '',
-  end_date: '',
-  budget_amount: null, // Initialize monetary fields as null or 0
   pag_value: null,
+  start_date: null,
+  end_date: null,
+  approval_date: null, // Added
+  budget_amount: null, // Added from serializer
   total_expenditure: null,
   total_contribution: null,
-  total_contribution_expenditure_diff: null,
   total_psc: null,
-});
+  country_name_input: '',      // String input for country name
+  lead_org_unit_name_input: '', // String input for lead org unit name
+  // The actual `donors_input` and `themes_input` will be generated in handleSubmit
+};
+const formData = ref({ ...initialFormData });
 
+// For multi-selects - these will hold arrays of selected *names*
+const selectedDonors = ref([]);
+const selectedThemes = ref([]);
+
+// Data for dropdowns
+const countries = ref([]);
+const availableThemes = ref([]); // Renamed from `themes` to avoid conflict
+const availableDonors = ref([]); // Renamed from `donors`
+
+const loadingInitialData = ref(true);
+const initialDataError = ref(null);
 const isSubmitting = ref(false);
-const submissionError = ref(null);
+const submitError = ref(null);
+const submitSuccess = ref(false);
+const formErrors = ref({});
 
-// Reactive variable to hold options for Country dropdown
-const countryOptions = ref([]);
-
-// Hardcoded status choices based on your Django model
-const statusChoices = ref([
-  { key: 'Pending Approval', label: 'Pending Approval' },
-  { key: 'Approved', label: 'Approved' },
-  // Add other choices from your Django model if they exist
-  // { key: 'Completed', label: 'Completed' },
-  // { key: 'Cancelled', label: 'Cancelled' },
-]);
-
-
-// TODO: Function to fetch options for Country dropdown from the backend
-async function fetchDropdownOptions() {
+const fetchInitialData = async () => {
+  loadingInitialData.value = true;
+  initialDataError.value = null;
   try {
-    // Example: Fetch countries
-    // const countriesResponse = await getCountries();
-    // countryOptions.value = countriesResponse.data;
-    console.log("TODO: Fetch Country dropdown options");
-
-    // Simulate fetching data for now
-    countryOptions.value = [{id: 1, name: 'Kenya'}, {id: 2, name: 'Uganda'}, {id: 3, name: 'Ethiopia'}]; // Simulated data
-
-
+    const [countriesResponse, themesResponse, donorsResponse] = await Promise.all([
+      apiService.getCountries(),
+      apiService.getThemes(),
+      apiService.getDonors(),
+    ]);
+    countries.value = countriesResponse.data;
+    availableThemes.value = themesResponse.data;
+    availableDonors.value = donorsResponse.data;
   } catch (err) {
-    console.error('Error fetching dropdown options:', err);
-    // You might want to set an error state or show a message
-  }
-}
-
-// Fetch dropdown options when the component is mounted
-onMounted(() => {
-  fetchDropdownOptions();
-});
-
-
-// Function to handle form submission
-async function handleSubmit() {
-  isSubmitting.value = true;
-  submissionError.value = null;
-
-  try {
-    // Prepare data for submission - ensure correct format for backend API
-    // For ForeignKey fields, send the ID (number) or null
-    // For ManyToMany fields, send an array of IDs (numbers)
-    // For text inputs (Lead Org Unit, Themes, Donors), send the string value.
-    // NOTE: Your backend DRF serializer for Project will need to be updated
-    // to handle receiving strings for lead_org_unit, themes, and donors,
-    // and either find/create the related objects based on the string name(s),
-    // or you'll need to add frontend logic to convert names to IDs before submitting.
-    // Sending raw strings for ManyToMany fields like 'themes' and 'donors'
-    // will likely cause validation errors on the backend unless the serializer is customized.
-
-    const dataToSubmit = {
-       ...formData.value, // Spread existing form data
-       // For ForeignKey 'country', if an object is selected, send its ID. If null, send null.
-       country: formData.value.country ? formData.value.country.id : null,
-       // For text inputs, send the string value directly
-       lead_org_unit: formData.value.lead_org_unit || null, // Send null if empty string
-       themes: formData.value.themes || null, // Send null if empty string
-       donors: formData.value.donors || null, // Send null if empty string
-       // Ensure date fields are in the correct format (YYYY-MM-DD) if not already
-       // Date inputs with v-model usually handle this, but confirm format if needed
-       approval_date: formData.value.approval_date || null,
-       start_date: formData.value.start_date || null,
-       end_date: formData.value.end_date || null,
-       // Ensure monetary fields are numbers or null
-       budget_amount: formData.value.budget_amount || null,
-       pag_value: formData.value.pag_value || null,
-       total_expenditure: formData.value.total_expenditure || null,
-       total_contribution: formData.value.total_contribution || null,
-       total_contribution_expenditure_diff: formData.value.total_contribution_expenditure_diff || null,
-       total_psc: formData.value.total_psc || null,
-       // project_id_excel, paas_code, fund, title, status are already strings/numbers
-    };
-
-    console.log("Submitting data:", dataToSubmit); // Log data before submitting
-
-    // Call the createProject service function
-    const response = await createProject(dataToSubmit);
-
-    console.log('Project created successfully:', response.data);
-
-    // Redirect to the new project's detail page or the project list
-    router.push({ name: 'ProjectDetails', params: { id: response.data.id } });
-    // Or redirect to the list: router.push({ name: 'Projects' });
-
-  } catch (err) {
-    console.error('Error creating project:', err);
-    // Handle and display errors from the backend (e.g., validation errors)
-     if (err.response && err.response.data) {
-        // DRF often returns validation errors in err.response.data
-        submissionError.value = 'Failed to create project. Please check the form data.';
-        // You could parse err.response.data to show specific field errors
-        console.error("Backend validation errors:", err.response.data);
-     } else {
-        submissionError.value = `Failed to create project: ${err.message || 'An unknown error occurred.'}`;
-     }
+    console.error('Failed to fetch initial form data:', err);
+    initialDataError.value = err;
   } finally {
-    isSubmitting.value = false; // Re-enable the submit button
+    loadingInitialData.value = false;
   }
+};
+
+const formatBackendErrors = (errors) => {
+  if (typeof errors === 'string') return errors;
+  let errorMessages = [];
+  for (const key in errors) {
+    if (errors[key] && errors[key].length > 0) {
+      errorMessages.push(`${key}: ${errors[key].join(', ')}`);
+    }
+  }
+  return errorMessages.join('; ');
+};
+
+
+const handleSubmit = async () => {
+  isSubmitting.value = true;
+  submitError.value = null;
+  submitSuccess.value = false;
+  formErrors.value = {};
+
+  // Prepare data to send, ensuring numeric and date fields are null if empty
+  // and M2M fields are comma-separated strings of names
+  const dataToSend = {
+    ...formData.value,
+    pag_value: formData.value.pag_value === '' || formData.value.pag_value === null ? null : Number(formData.value.pag_value),
+    budget_amount: formData.value.budget_amount === '' || formData.value.budget_amount === null ? null : Number(formData.value.budget_amount),
+    total_contribution: formData.value.total_contribution === '' || formData.value.total_contribution === null ? null : Number(formData.value.total_contribution),
+    total_expenditure: formData.value.total_expenditure === '' || formData.value.total_expenditure === null ? null : Number(formData.value.total_expenditure),
+    total_psc: formData.value.total_psc === '' || formData.value.total_psc === null ? null : Number(formData.value.total_psc),
+    
+    start_date: formData.value.start_date === '' ? null : formData.value.start_date,
+    end_date: formData.value.end_date === '' ? null : formData.value.end_date,
+    approval_date: formData.value.approval_date === '' ? null : formData.value.approval_date,
+
+    // country_name_input is already a string from formData
+    // lead_org_unit_name_input is already a string from formData
+
+    donors_input: selectedDonors.value.join(','), // Convert array of names to comma-separated string
+    themes_input: selectedThemes.value.join(','),   // Convert array of names to comma-separated string
+  };
+
+  try {
+    const response = await apiService.createProject(dataToSend);
+    submitSuccess.value = true;
+    console.log('Project created successfully:', response.data);
+    // Optionally, redirect after a delay or keep user on page
+    // setTimeout(() => router.push({ name: 'ProjectList' }), 2000);
+  } catch (err) {
+    console.error('Failed to create project:', err);
+    submitError.value = err;
+    if (err.response && err.response.data) {
+      formErrors.value = err.response.data;
+    }
+  } finally {
+    isSubmitting.value = false;
+  }
+};
+
+const resetForm = () => {
+  formData.value = { ...initialFormData };
+  selectedDonors.value = [];
+  selectedThemes.value = [];
+  formErrors.value = {};
+  submitError.value = null;
+  // submitSuccess will be handled by resetFormAndPrepareNew if user clicks "Create Another"
+};
+
+const resetFormAndPrepareNew = () => {
+    resetForm();
+    submitSuccess.value = false; // Explicitly reset success message for new form
 }
 
-// Function to handle cancel button click
-function handleCancel() {
-  // Navigate back to the previous page or the project list
-  router.back(); // Go back in history
-  // Or navigate to the list: router.push({ name: 'Projects' });
-}
 
-// Variables and functions declared in <script setup> are automatically exposed to the template.
+onMounted(() => {
+  fetchInitialData();
+});
 </script>
 
 <style scoped>
-/* Scoped styles specific to ProjectCreateView.vue */
-.project-create-view {
-  padding: 20px;
-  max-width: 800px; /* Limit form width for better usability */
-  margin: 0 auto;
-  color: var(--color-text-primary);
+/* Basic styling for the form - adapt to your existing styles */
+.create-project-page {
+  padding: 20px 25px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f9fbfd;
+  min-height: 100vh;
+  box-sizing: border-box;
 }
 
-.view-header {
-  text-align: center;
-  margin-bottom: 40px;
-  color: var(--color-text-primary);
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e0e0e0;
 }
 
-.view-header h1 {
-  font-size: 2.4em;
+.page-title {
+  font-size: 28px;
   font-weight: 600;
-  color: var(--color-primary);
-  margin-bottom: 10px;
+  color: #333;
+  margin: 0;
 }
 
-.view-header p {
-  font-size: 1.1em;
-  color: var(--color-text-secondary);
+.btn {
+  padding: 10px 18px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  font-weight: 500;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+  margin-left: 10px; /* Add some space between buttons */
+}
+.btn:first-child {
+    margin-left: 0;
 }
 
-.create-form-container {
-  background-color: var(--color-background-content);
-  padding: 30px;
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-md);
-  border: 1px solid var(--color-border);
+
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+}
+.btn-primary:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+.btn-secondary:hover:not(:disabled) {
+  background-color: #5a6268;
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.loading-state, .error-state, .success-state {
+  text-align: center;
+  padding: 20px;
+  margin-top: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+.loading-state { background-color: #e9ecef; color: #495057; }
+.error-state {
+  border-left: 4px solid #dc3545;
+  color: #721c24;
+  background-color: #f8d7da;
+}
+.success-state {
+  border-left: 4px solid #28a745;
+  color: #155724;
+  background-color: #d4edda;
+}
+.error-state .btn, .success-state .btn { /* Apply to buttons within states */
+    margin-top: 15px;
+}
+.submit-error {
+    margin-top: 20px;
+}
+
+
+form {
+  background-color: #ffffff;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  margin-top: 20px;
+}
+
+.form-section {
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px dashed #e0e0e0;
+}
+.form-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.form-section h3 {
+  font-size: 18px;
+  color: #333;
+  margin-top: 0;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
 }
 
 .form-group {
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 .form-group label {
   display: block;
+  font-weight: 500;
   margin-bottom: 8px;
-  font-weight: 600;
-  color: var(--color-text-heading);
-  font-size: 0.95em;
+  color: #495057;
+  font-size: 14px;
 }
 
 .form-group input[type="text"],
-.form-group input[type="date"],
 .form-group input[type="number"],
-.form-group textarea,
+.form-group input[type="date"],
 .form-group select {
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--border-radius-md);
-  font-size: 1em;
-  /* Ensure text is visible in dark mode */
-  color: var(--color-text-primary); /* Use primary text color */
-  background-color: var(--color-background-body); /* Use body background for input fill */
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 14px;
   box-sizing: border-box;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  background-color: #fff; /* Ensure select background is white */
 }
 
-/* Style for select options to ensure visibility in dark mode */
-/* This rule uses global CSS variables which should adapt based on theme */
-.form-group select option {
-    color: var(--color-text-primary); /* Use primary text color for options */
-    background-color: var(--color-background-content); /* Use content background for option background */
-}
-
-
-.form-group input:focus,
-.form-group textarea:focus,
+.form-group input[type="text"]:focus,
+.form-group input[type="number"]:focus,
+.form-group input[type="date"]:focus,
 .form-group select:focus {
   outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
 }
 
-.form-group textarea {
-  min-height: 120px;
-  resize: vertical;
+.form-group select[multiple] {
+    height: auto; /* Adjust height for multiple select */
+    min-height: 100px;
+}
+.form-group small {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.85em;
+    color: #6c757d;
+}
+
+.required {
+  color: #dc3545;
+  margin-left: 4px;
+}
+
+.error-message {
+    color: #dc3545;
+    font-size: 0.875em; /* Slightly smaller */
+    margin-top: 5px;
+    display: block;
 }
 
 .form-actions {
   margin-top: 30px;
-  text-align: right;
+  display: flex;
+  gap: 15px;
+  justify-content: flex-end;
 }
 
-.form-actions button {
-  padding: 10px 20px;
-  border-radius: var(--border-radius-md);
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s ease, opacity 0.2s ease;
-  margin-left: 15px;
+.spinner {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s ease-in-out infinite;
+  margin-right: 8px; /* Increased margin */
+  vertical-align: -0.125em; /* Align better with text */
 }
 
-.form-actions button[type="submit"] {
-  background-color: var(--color-primary);
-  color: var(--color-text-light);
-  border: 1px solid var(--color-primary);
-}
-
-.form-actions button[type="submit"]:hover:not(:disabled) {
-  background-color: var(--color-primary-dark);
-  border-color: var(--color-primary-dark);
-}
-
-.form-actions button[type="submit"]:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.form-actions button[type="button"] {
-  background-color: var(--color-background-mute);
-  color: var(--color-text-primary);
-  border: 1px solid var(--color-border);
-}
-
-.form-actions button[type="button"]:hover:not(:disabled) {
-  background-color: var(--color-border);
-  border-color: var(--color-text-secondary);
-}
-
-.error-message {
-  background-color: var(--color-background-error);
-  color: var(--color-text-error);
-  border: 1px solid var(--color-border-error);
-  padding: 15px;
-  border-radius: var(--border-radius-md);
-  margin-top: 20px;
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 </style>
