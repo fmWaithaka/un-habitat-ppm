@@ -4,6 +4,7 @@ import ProjectListPage from '../views/ProjectListPage.vue';
 import ProjectDetailPage from '../views/ProjectDetailPage.vue';
 import ProjectCreateView from '../views/ProjectCreateView.vue';
 import ProjectEditView from '../views/ProjectEditView.vue'; 
+import DashboardView from '../views/DashboardView.vue'; 
 
 const routes = [
   {
@@ -34,7 +35,7 @@ const routes = [
     path: '/dashboard', 
     name: 'Dashboard',
     // component: () => import('../views/DashboardPage.vue') // Lazy load example
-    component: { template: '<div>Dashboard Page - Coming Soon!</div>' } // Placeholder
+    component: DashboardView
   }
 ];
 
