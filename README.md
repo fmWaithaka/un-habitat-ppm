@@ -32,8 +32,8 @@ A web application designed to streamline the management and visualization of UN-
 
 ## Technologies Used
 
-- **Backend**: (Specify your backend framework/language, e.g., Python/Flask, Node.js/Express, Django, etc.)  
-  [List specific backend libraries/databases used]  
+- **Backend**:
+  - Django   
 
 - **Frontend**: 
   - Vue.js (using Composition API with `<script setup>`)  
